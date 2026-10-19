@@ -1,8 +1,5 @@
 """
-PA 5 dependency: paste in YOUR OWN completed PA 2 lexer.py here.
-(Needed transitively -- symtable.py imports from parser.py, which
-imports from this file. PA 5's own new work doesn't touch lexing or
-parsing directly.)
+PA 4 dependency: paste in YOUR OWN completed PA 2 lexer.py here.
 
 This is the same file from PA 2's repo -- copy your own working
 tokenize() implementation over this stub before starting parser.py.
@@ -30,9 +27,20 @@ class LexError(Exception):
     pass
 
 
-# TODO: build your master regex here, e.g.:
-# _MASTER_RE = re.compile(r"(?P<NUMBER>\d+)|(?P<IDENT>[A-Za-z_]\w*)|...")
-
+_MASTER_RE = re.compile(
+    r"(?P<NUMBER>\d+)|"
+    r"(?P<IDENT>[a-zA-Z][a-zA-Z0-9]*)|"
+    r"(?P<WHITESPACE>\s+)|"
+    r"(?P<COMMENT>#.*)|"
+    r"(?P<PLUS>\+)|"
+    r"(?P<MINUS>-)|"
+    r"(?P<STAR>\*)|"
+    r"(?P<SLASH>/)|"
+    r"(?P<LPAREN>\()|"
+    r"(?P<RPAREN>\))|"
+    r"(?P<ASSIGN>=)|"
+    r"(?P<SEMI>;)"
+    )
 
 def tokenize(source: str) -> List[Token]:
     """
@@ -43,5 +51,34 @@ def tokenize(source: str) -> List[Token]:
     them. Track 1-indexed line numbers. Raise LexError (with the
     offending character and line) on unrecognized input.
     """
-    # TODO
-    raise NotImplementedError
+    tokens =[]
+    line_num = 1
+    pos = 0
+    length = len(source)
+    
+    while pos < length:
+        match = _MASTER_RE.match(source, pos)
+        
+        if not match:
+            raise LexError(f"Unrecognized character '{source[pos]}' at line {line_num}")
+            
+        type_str = match.lastgroup
+        lexeme = match.group()
+        
+        # Requirement 9: Keyword disambiguation check
+        if type_str == "IDENT" and lexeme == "let":
+            type_str = "LET"
+            
+        # Requirement 8: Discard whitespace and comments
+        if type_str != "WHITESPACE" and type_str != "COMMENT":
+            tokens.append(Token(type_str, lexeme, line_num))
+            
+        # Requirement 7: Track line numbers
+        line_num += lexeme.count('\n')
+        
+        # Advance the position index
+        pos = match.end()
+        
+    tokens.append(Token("EOF", "", line_num))
+    
+    return tokens

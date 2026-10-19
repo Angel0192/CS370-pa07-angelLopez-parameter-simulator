@@ -1,8 +1,4 @@
 """
-PA 7 dependency: paste in YOUR OWN completed PA 6 frames.py here.
-
-Original header preserved below for reference:
-
 PA 6: The Activation Record -- starter.
 
 Complete ActivationRecord and CallStack below. See
